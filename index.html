@@ -3,120 +3,184 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>เกมทายโลโก้</title>
+    <title>Cute Logo Quiz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
+        :root {
+            /* ธีมสีพาสเทล */
+            --bg-color: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%); /* พื้นหลังขาวนวล */
+            --main-bg: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%); /* ฟ้าพาสเทล */
+            --accent-pink: #ff9ff3;
+            --accent-blue: #54a0ff;
+            --text-color: #576574; /* สีเทาเข้ม อ่านง่ายสบายตา */
+            --card-bg: #ffffff;
+        }
+
         body {
             font-family: 'Prompt', sans-serif;
-            background-color: #2c3e50;
-            color: white;
+            background: linear-gradient(to top, #fad0c4 0%, #ffd1ff 100%); /* พื้นหลังสีลูกกวาด */
+            color: var(--text-color);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
             user-select: none;
+            overflow: hidden;
         }
 
-        h1 { margin-bottom: 10px; font-size: 36px; }
-        
+        /* --- Screens --- */
+        .screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .screen.active { display: flex; }
+
+        /* --- Typography --- */
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+            color: #ffffff;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        p { font-size: 1.4rem; color: #fff; margin-bottom: 30px; font-weight: 600; }
+
+        /* --- Buttons (สไตล์นุ่มนิ่ม) --- */
+        .btn {
+            padding: 15px 60px;
+            font-size: 26px;
+            font-weight: 800;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            background-color: white;
+            color: var(--accent-blue);
+            box-shadow: 0 8px 0 rgba(0,0,0,0.1); /* เงาแบบการ์ตูน */
+            font-family: 'Prompt', sans-serif;
+        }
+
+        .btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 0 rgba(0,0,0,0.1);
+        }
+
+        .btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 rgba(0,0,0,0.1);
+        }
+
+        .start-btn { color: #ff6b6b; }
+        .restart-btn { color: #1dd1a1; margin-top: 20px; }
+
+        /* --- Game HUD --- */
         .score-board {
-            font-size: 28px;
-            margin-bottom: 20px;
-            background: rgba(255, 255, 255, 0.1);
-            padding: 10px 30px;
-            border-radius: 10px;
+            position: absolute;
+            top: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 40px;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--text-color);
+            display: flex;
+            gap: 20px;
+            z-index: 10;
         }
 
+        .score-board span { color: #ff9ff3; font-weight: 800; }
+
+        /* --- Game Cards --- */
         .game-container {
             display: flex;
-            gap: 40px; /* ระยะห่างระหว่างกล่อง */
+            gap: 40px;
             flex-wrap: wrap;
             justify-content: center;
         }
 
-        /* --- จุดที่ปรับขนาดกล่อง --- */
         .option-card {
-            width: 400px;  /* ปรับความกว้างตรงนี้ */
-            height: 350px; /* ปรับความสูงตรงนี้ */
-            background-color: white;
-            border-radius: 20px;
+            width: 260px;
+            height: 260px;
+            background-color: var(--card-bg);
+            border-radius: 35px; /* มุมมนมาก */
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: transform 0.1s, box-shadow 0.1s;
-            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             border: 8px solid white;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        }
-
-        .option-card:active {
-            transform: scale(0.95);
+            box-shadow: 0 10px 20px rgba(162, 155, 254, 0.2);
+            position: relative;
+            overflow: hidden;
         }
 
         .option-card:hover {
-            box-shadow: 0 0 30px rgba(255, 255, 255, 0.6);
-            border-color: #f1c40f; /* เปลี่ยนขอบเป็นสีเหลืองเมื่อเอาเมาส์ชี้ */
+            transform: scale(1.05) rotate(2deg); /* หมุนนิดๆ ให้น่ารัก */
+            border-color: #ffeaa7;
+            box-shadow: 0 15px 30px rgba(255, 234, 167, 0.4);
         }
 
-        /* คลาสสำหรับใส่รูปภาพ */
         .logo-img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain; /* รูปจะขยายให้พอดีกล่องเอง */
+            width: 85%;
+            height: 85%;
+            object-fit: contain;
         }
 
-        /* --- สไตล์สำหรับโลโก้จำลอง (ตัวหนังสือใหญ่ขึ้น) --- */
-        .fake-logo {
-            font-size: 80px; /* ขยายตัวหนังสือให้ใหญ่สะใจ */
-            font-weight: bold;
-            color: white;
-            width: 100%; height: 100%;
-            display: flex; align-items: center; justify-content: center;
+        /* --- Animation --- */
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
         }
-        /* --------------------------------------------------- */
 
-        .result-screen {
-            text-align: center;
-            display: none;
+        /* Mobile */
+        @media (max-width: 600px) {
+            .game-container { flex-direction: column; gap: 20px; }
+            .option-card { width: 180px; height: 180px; border-radius: 25px; }
+            h1 { font-size: 2.5rem; text-align: center;}
+            .score-board { width: 80%; justify-content: center; font-size: 18px; }
         }
-        
-        button.restart-btn {
-            padding: 20px 40px;
-            font-size: 24px;
-            background-color: #27ae60;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            margin-top: 20px;
-        }
-        
-        button.restart-btn:hover { background-color: #219150; }
-
     </style>
 </head>
 <body>
 
-    <h1>เกมทายโลโก้</h1>
-    
-    <div class="score-board">
-        ข้อที่: <span id="current-q">1</span> / <span id="total">0</span> 
-        | คะแนน: <span id="score">0</span>
+    <div id="start-screen" class="screen active">
+        <h1>LOGO QUIZ</h1>
+        <p>✨ ทายซิ...อันไหนของจริง? ✨</p>
+        <button class="btn start-btn" onclick="startGame()">เริ่มเล่นเลย! 🎮</button>
     </div>
 
-    <div id="quiz-area" class="game-container">
+    <div id="game-screen" class="screen">
+        <div class="score-board">
+            <div>ข้อที่: <span id="current-q">1</span> / <span id="total">0</span></div>
+            <div>คะแนน: <span id="score">0</span> 💖</div>
         </div>
+        <div id="quiz-area" class="game-container">
+            </div>
+    </div>
 
-    <div id="result-area" class="result-screen">
-        <h2 style="font-size: 48px; margin: 0;">จบเกมแล้ว!</h2>
-        <p style="font-size: 36px;">คุณทายถูกทั้งหมด: <span id="final-score" style="color: #f1c40f;">0</span> ข้อ</p>
-        <button class="restart-btn" onclick="location.reload()">เล่นใหม่อีกครั้ง</button>
+    <div id="result-screen" class="screen">
+        <h1 style="font-size: 3rem;">จบเกมแล้วจ้า! 🎉</h1>
+        <p style="font-size: 24px;">คุณทายถูกไปตั้ง... <br>
+            <span id="final-score" style="color: #fff; font-size: 60px; font-weight: 800; text-shadow: 2px 2px 0 rgba(0,0,0,0.1);">0</span> 
+            <br>ข้อ แน่ะ! เก่งมาก 👍
+        </p>
+        <button class="btn restart-btn" onclick="location.reload()">เล่นใหม่อีกรอบ ↺</button>
     </div>
 
     <script>
        const quizData = [
+            // ... (ข้อมูลเดิม ไม่ต้องแก้) ...
             { correct: `<img src="711_true.png" class="logo-img">`, wrong: `<img src="711_false.png" class="logo-img">` },
             { correct: `<img src="kitkat_true.png" class="logo-img">`, wrong: `<img src="kitkat_false.png" class="logo-img">` },
             { correct: `<img src="adidas_true.png" class="logo-img">`, wrong: `<img src="adidas_false.png" class="logo-img">` },
@@ -166,19 +230,28 @@
             { correct: `<img src="playboy_true.png" class="logo-img">`, wrong: `<img src="playboy_false.png" class="logo-img">` },
             { correct: `<img src="hellokitty_true.png" class="logo-img">`, wrong: `<img src="hellokitty_false.png" class="logo-img">` },
             { correct: `<img src="7up_true.png" class="logo-img">`, wrong: `<img src="7up_false.png" class="logo-img">` },
-            { correct: `<img src="domino_true.png" class="logo-img">`, wrong: `<img src="domino_false.png" class="logo-img">` }
+            { correct: `<img src="domino_true.png" class="logo-img">`, wrong: `<img src="domino_false.png" class="logo-img">` },
         ];
+
         let currentLevel = 0;
         let score = 0;
         
+        const startScreen = document.getElementById('start-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const resultScreen = document.getElementById('result-screen');
         const quizArea = document.getElementById('quiz-area');
         const scoreDisplay = document.getElementById('score');
         const currentQDisplay = document.getElementById('current-q');
         const totalDisplay = document.getElementById('total');
-        const resultArea = document.getElementById('result-area');
         const finalScoreDisplay = document.getElementById('final-score');
 
         totalDisplay.innerText = quizData.length;
+
+        function startGame() {
+            startScreen.classList.remove('active');
+            gameScreen.classList.add('active');
+            loadLevel();
+        }
 
         function loadLevel() {
             if (currentLevel >= quizData.length) {
@@ -187,7 +260,6 @@
             }
 
             currentQDisplay.innerText = currentLevel + 1;
-
             const currentData = quizData[currentLevel];
             quizArea.innerHTML = ''; 
 
@@ -223,13 +295,11 @@
         }
 
         function endGame() {
-            quizArea.style.display = 'none';
-            document.querySelector('.score-board').style.display = 'none';
-            resultArea.style.display = 'block';
+            gameScreen.classList.remove('active');
+            resultScreen.classList.add('active');
             finalScoreDisplay.innerText = score + " / " + quizData.length;
         }
 
-        loadLevel();
     </script>
 </body>
 </html>
